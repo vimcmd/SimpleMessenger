@@ -1,6 +1,9 @@
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class ChatServer {
@@ -16,6 +19,10 @@ public class ChatServer {
             Socket clientSocket = server.accept();
             AcceptClient acceptClient = new AcceptClient(clientSocket);
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        ChatServer chatServer = new ChatServer();
     }
 
     public class AcceptClient extends Thread {
@@ -37,7 +44,20 @@ public class ChatServer {
 
         public void run() {
             while (true) {
-                
+                try {
+                    String msgFromClient = dataInputStream.readUTF();
+                    StringTokenizer stringTokenizer = new StringTokenizer(msgFromClient);
+                    String loginName = stringTokenizer.nextToken();
+                    String mesgType = stringTokenizer.nextToken();
+
+                    for(int i = 0; i < loginNames.size(); i++) {
+                        Socket pSocket = (Socket) clientSockets.elementAt(i);
+                        DataOutputStream pOut = new DataOutputStream(pSocket.getOutputStream());
+                        pOut.writeUTF(loginName + " has logged in.");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
